@@ -2,3 +2,4 @@
 node-webserver/server.log
 .DS_store
 **/.DS_store
+node-todo-api/server/config/config.json

@@ -4,21 +4,25 @@ const {ObjectID} = require('mongodb');
 const {Todo} = require('./../../models/todo');
 const {User} = require('./../../models/user');
 
-const registeredUserID = new ObjectID();
-const unregisteredUserID = new ObjectID();
+const userOneId = new ObjectID();
+const userTwoId = new ObjectID();
 
 const users = [{
-    _id: registeredUserID,
-    email: 'registereduser@example.com',
+    _id: userOneId,
+    email: 'userone@example.com',
     password: 'userOnePass',
     tokens: [{
-        token: jwt.sign({_id: registeredUserID, access: 'auth'}, 'ch@nce').toString(),
+        token: jwt.sign({_id: userOneId, access: 'auth'}, process.env.JWT_SECRET).toString(),
         access: 'auth'  
     }]
 }, {
-    _id: unregisteredUserID,
-    email: 'unregistereduser@example.net',
-    password: 'userTwoPass'
+    _id: userTwoId,
+    email: 'usertwo@example.net',
+    password: 'userTwoPass',
+    tokens: [{
+        token: jwt.sign({_id: userTwoId, access: 'auth'}, process.env.JWT_SECRET).toString(),
+        access: 'auth'
+    }]
 }];
 
 const populateUsers = (done) => {
@@ -32,14 +36,13 @@ const populateUsers = (done) => {
 
 const todos = [{
 	_id: new ObjectID(),
-	text: "First test todo"
+    text: "First test todo",
+    _creator: userOneId
 }, {
 	_id: new ObjectID(),
 	text: "Second test todo",
-	completed: true
-}, {
-	_id: new ObjectID(),
-	text: "Third test todo"
+    completed: true,
+    _creator: userTwoId
 }];
 
 const populateTodos = (done) => {

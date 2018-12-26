@@ -52,6 +52,18 @@ UserSchema.methods.generateAuthToken = function () {
 	});
 };
 
+UserSchema.methods.removeToken = function(token) {
+	var user = this;
+
+	return user.update({
+		$pull: {
+			tokens: {
+				token
+			}
+		}
+	});
+};
+
 // statics creates model method rather than instance method
 UserSchema.statics.findByToken = function(token) {
 	var User = this;
@@ -59,9 +71,7 @@ UserSchema.statics.findByToken = function(token) {
 
 	try {
 		decoded = jwt.verify(token, 'ch@nce');
-		console.log(JSON.stringify(decoded._id));
 	} catch(e) {
-		console.log(e);
 		return Promise.reject();
 	}
 
@@ -69,6 +79,26 @@ UserSchema.statics.findByToken = function(token) {
 		'_id': decoded._id,
 		'tokens.token': token,
 		'tokens.access': 'auth'
+	});
+};
+
+UserSchema.statics.findByCredentials = function(email, password) {
+	var User = this;
+	
+	return User.findOne({email}).then((user) => {
+		if (!user) {
+			return Promise.reject();
+		}
+		return new Promise((resolve, reject) => {
+			bcrypt.compare(password, user.password, (err, res) => {
+				if (res) {
+					resolve(user);
+				}
+				else {
+					reject();
+				}
+			});
+		}); 
 	});
 };
 
